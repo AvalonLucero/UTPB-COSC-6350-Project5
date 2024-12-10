@@ -22,25 +22,30 @@ public class BluetoothServer {
         KeyPair serverKeyPair = generateECDHKeyPair();
         PublicKey serverPublicKey = serverKeyPair.getPublic();
         PrivateKey serverPrivateKey = serverKeyPair.getPrivate();
+        System.out.println("Server's Public Key: " + serverPublicKey);
 
         // Step 2: Exchange public keys with the client
         sendPublicKey(socket, serverPublicKey);
+        System.out.println("Sent server's public key to the client.");
+
         PublicKey clientPublicKey = receivePublicKey(socket);
+        System.out.println("Received client's public key: " + clientPublicKey);
 
         // Step 3: Derive the shared session key
         byte[] sharedSecret = generateSharedSecret(serverPrivateKey, clientPublicKey);
         byte[] sessionKey = deriveSessionKey(sharedSecret);
-
-        System.out.println("Session key established!");
+        
+        System.out.println("Session key established and derived from shared secret.");
 
         // Step 4: Send and receive multiple packets
         for (int i = 0; i < 5; i++) {  // Example: send and receive 5 packets
             // Send an encrypted packet to the client
             String message = "Packet " + (i + 1) + " from server!";
             Packet packet = createEncryptedPacket(message.getBytes(), sessionKey);
+            System.out.println("Sending encrypted packet...");
             sendPacket(socket, packet);
 
-            // Receive and decrypt a packet from the client
+            // Step 5: Receive and decrypt a packet from the client
             Packet receivedPacket = receivePacket(socket);
             byte[] decryptedPayload = decryptPayload(receivedPacket, sessionKey);
             System.out.println("Decrypted message from client: " + new String(decryptedPayload));
@@ -61,6 +66,7 @@ public class BluetoothServer {
     private static void sendPublicKey(Socket socket, PublicKey publicKey) throws IOException {
         OutputStream out = socket.getOutputStream();
         out.write(publicKey.getEncoded());
+        out.flush();
     }
 
     private static PublicKey receivePublicKey(Socket socket) throws Exception {
