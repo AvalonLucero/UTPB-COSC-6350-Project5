@@ -12,9 +12,11 @@ public class BluetoothServer {
     private static final int PORT = 12345;
 
     public static void main(String[] args) throws Exception {
+        // Port the connection will be established on
         ServerSocket serverSocket = new ServerSocket(PORT);
         System.out.println("Server started, waiting for client connection...");
 
+        // Accept waits for client request
         Socket socket = serverSocket.accept();
         System.out.println("Client connected!");
 
@@ -41,6 +43,7 @@ public class BluetoothServer {
         for (int i = 0; i < 5; i++) {  // Example: send and receive 5 packets
             // Send an encrypted packet to the client
             String message = "Packet " + (i + 1) + " from server!";
+            // TODO: Add messages that server can send 
             Packet packet = createEncryptedPacket(message.getBytes(), sessionKey);
             System.out.println("Sending encrypted packet...");
             sendPacket(socket, packet);
